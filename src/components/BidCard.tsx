@@ -5,15 +5,23 @@ import { Calendar, DollarSign, MapPin, Hash, FileText, Bell, ExternalLink, Check
 
 interface BidCardProps {
   bid: Bid;
+  score?: number;
   isSelected?: boolean;
   onSelect?: (bid: Bid) => void;
   onAlert?: (bid: Bid) => void;
   onAnalyze?: (pdfUrl: string) => void;
 }
 
-export function BidCard({ bid, isSelected, onSelect, onAlert, onAnalyze }: BidCardProps) {
+export function BidCard({ bid, score, isSelected, onSelect, onAlert, onAnalyze }: BidCardProps) {
   // Defensive: ensure bid object exists
   if (!bid) return null;
+
+  // Score color based on value
+  const getScoreColor = (s: number) => {
+    if (s >= 70) return 'text-green-600 border-green-500 bg-green-500/10';
+    if (s >= 40) return 'text-yellow-600 border-yellow-500 bg-yellow-500/10';
+    return 'text-red-500 border-red-400 bg-red-500/10';
+  };
 
   return (
     <div
@@ -27,8 +35,15 @@ export function BidCard({ bid, isSelected, onSelect, onAlert, onAnalyze }: BidCa
       {/* Header */}
       <div className="p-4 border-b border-border/50">
         <div className="flex items-start justify-between gap-3">
-          {/* Selection indicator */}
-          {isSelected && (
+          {/* Score Badge */}
+          {score !== undefined && (
+            <div className={`flex-shrink-0 w-11 h-11 rounded-full border-2 flex flex-col items-center justify-center ${getScoreColor(score)}`}>
+              <span className="text-sm font-bold leading-none">{score}</span>
+              <span className="text-[8px] uppercase tracking-wide leading-none">match</span>
+            </div>
+          )}
+          {/* Selection indicator (only show if no score) */}
+          {isSelected && score === undefined && (
             <div className="flex-shrink-0 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
               <Check className="w-3 h-3 text-primary-foreground" />
             </div>

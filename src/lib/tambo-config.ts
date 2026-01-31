@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { BidCard } from '@/components/BidCard';
 import { BidList } from '@/components/BidList';
 import { BidDetail } from '@/components/BidDetail';
+import { scoreAndSortBids } from '@/lib/bid-scoring';
+import { DEFAULT_USER_PROFILE } from '@/lib/user-profile';
 
 // Component schemas for Tambo
 // Shared bid schema - all fields optional, accepts nulls via nullish()
@@ -42,6 +44,8 @@ const bidSchema = z.object({
     notice_period: z.string().nullish(),
   }).nullish(),
   trades_required: z.array(z.string()).nullish(),
+  // Scoring field
+  score: z.number().nullish(),
 });
 
 export const tamboComponents = [
@@ -103,14 +107,20 @@ export const tamboComponents = [
 export const tamboTools = [
   {
     name: 'findBids',
-    description: 'Search for government bids matching user criteria. Use this when the user wants to find government contracts, bids, or procurement opportunities.',
+    description: 'Search for government bids matching user criteria. Use this when the user wants to find government contracts, bids, or procurement opportunities. Results are scored and sorted by match percentage.',
     tool: async ({ query }: { query: string }) => {
       const response = await fetch('/api/bids/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       });
-      return response.json();
+      const result = await response.json();
+      
+      // Score and sort bids using user profile
+      const bids = result.data?.bids || result.bids || [];
+      const scoredBids = scoreAndSortBids(bids, DEFAULT_USER_PROFILE, query);
+      
+      return { bids: scoredBids };
     },
     inputSchema: z.object({
       query: z.string().describe('Natural language description of what bids to find (e.g., "plumbing projects for schools in SF")'),
