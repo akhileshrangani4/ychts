@@ -2,19 +2,7 @@
 
 import { useState } from 'react';
 import { useTamboComponentState } from '@tambo-ai/react';
-import { FileText, Clock, CheckCircle2, Wrench, Award, ClipboardList, Mail, Send, Loader2, ChevronDown } from 'lucide-react';
-
-interface Bid {
-  title?: string;
-  bid_number?: string;
-  agency?: string;
-  due_date?: string;
-  estimated_budget?: string;
-  trades?: string[];
-  location?: string;
-  pdf_url?: string;
-  source_url?: string;
-}
+import { FileText, Clock, CheckCircle2, Wrench, Award, ClipboardList, Mail, Send, Loader2 } from 'lucide-react';
 
 interface BidDetailProps {
   title?: string;
@@ -27,7 +15,6 @@ interface BidDetailProps {
   pdf_url?: string;
   due_date?: string;
   estimated_budget?: string;
-  allBids?: Bid[];
 }
 
 export function BidDetail({
@@ -41,21 +28,12 @@ export function BidDetail({
   pdf_url,
   due_date,
   estimated_budget,
-  allBids = [],
 }: BidDetailProps) {
   // Track email with Tambo state so AI knows what email was entered
   const [email, setEmail] = useTamboComponentState<string>('alertEmail', '');
   const [alertSent, setAlertSent] = useTamboComponentState<boolean>('alertSent', false);
-  // Track newly selected bid - AI will see this and can analyze it
-  const [newSelectedBid, setNewSelectedBid] = useTamboComponentState<Bid | null>('newSelectedBid', null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showBidSelector, setShowBidSelector] = useState(false);
-
-  const handleSelectNewBid = (bid: Bid) => {
-    setNewSelectedBid(bid);
-    setShowBidSelector(false);
-  };
 
   const handleSendAlert = async () => {
     if (!email || !email.includes('@')) {
@@ -112,41 +90,6 @@ export function BidDetail({
           </div>
         </div>
 
-        {/* Bid Selector */}
-        {allBids.length > 0 && (
-          <div className="mt-4 relative">
-            <button
-              onClick={() => setShowBidSelector(!showBidSelector)}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm bg-background border border-border rounded-lg hover:bg-muted/50 transition-colors"
-            >
-              <span className="text-muted-foreground">
-                {newSelectedBid ? `Selected: ${newSelectedBid.title}` : 'Select another bid to analyze...'}
-              </span>
-              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showBidSelector ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showBidSelector && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
-                {allBids.map((bid, index) => (
-                  <button
-                    key={`${bid.bid_number || 'bid'}-${index}`}
-                    onClick={() => handleSelectNewBid(bid)}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted/50 transition-colors border-b border-border/50 last:border-b-0"
-                  >
-                    <p className="font-medium text-foreground truncate">{bid.title || 'Untitled'}</p>
-                    <p className="text-xs text-muted-foreground">{bid.agency}</p>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {newSelectedBid && (
-              <p className="mt-2 text-xs text-primary">
-                Say &quot;analyze this bid&quot; to see details for the selected bid
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Content */}

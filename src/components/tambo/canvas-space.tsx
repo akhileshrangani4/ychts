@@ -31,11 +31,17 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
   const [renderedComponent, setRenderedComponent] =
     useState<React.ReactNode | null>(null);
 
+  // Track if user manually selected a component (via "View component" button)
+  const [isManuallySelected, setIsManuallySelected] = useState(false);
+
   // Ref for the scrollable container to enable auto-scrolling
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Track previous thread ID to handle thread changes
   const previousThreadId = useRef<string | null>(null);
+
+  // Track the count of messages with components to detect new ones
+  const prevComponentCount = useRef(0);
 
   /**
    * Effect to clear the canvas when switching between threads
@@ -48,6 +54,8 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
       (previousThreadId.current && previousThreadId.current !== thread.id)
     ) {
       setRenderedComponent(null);
+      setIsManuallySelected(false);
+      prevComponentCount.current = 0;
     }
 
     // Update the previous thread ID reference
@@ -64,6 +72,8 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
     ) => {
       try {
         setRenderedComponent(event.detail.component);
+        // Mark as manually selected so auto-update doesn't override
+        setIsManuallySelected(true);
       } catch (error) {
         console.error("Failed to render component:", error);
         setRenderedComponent(null);
@@ -86,6 +96,7 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
   /**
    * Effect to automatically display the latest component from thread messages
    * Updates when thread messages change or new components are added
+   * Respects manual selection - only auto-updates when a NEW component is added
    */
   useEffect(() => {
     if (!thread?.messages) {
@@ -97,12 +108,23 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
       (msg: TamboThreadMessage) => msg.renderedComponent,
     );
 
-    if (messagesWithComponents.length > 0) {
+    const currentCount = messagesWithComponents.length;
+    const isNewComponent = currentCount > prevComponentCount.current;
+    prevComponentCount.current = currentCount;
+
+    // Only auto-update if:
+    // 1. Not manually selected, OR
+    // 2. A NEW component was added (user sent message, AI responded)
+    if (messagesWithComponents.length > 0 && (!isManuallySelected || isNewComponent)) {
       const latestMessage =
         messagesWithComponents[messagesWithComponents.length - 1];
       setRenderedComponent(latestMessage.renderedComponent);
+      // Reset manual selection when new component arrives
+      if (isNewComponent) {
+        setIsManuallySelected(false);
+      }
     }
-  }, [thread?.messages]);
+  }, [thread?.messages, isManuallySelected]);
 
   /**
    * Effect to auto-scroll to bottom when new components are rendered

@@ -4,6 +4,7 @@ import { Bid } from '@/types/bid';
 import { BidCard } from './BidCard';
 import { SearchX, Briefcase, CheckCircle2 } from 'lucide-react';
 import { useTamboComponentState } from '@tambo-ai/react';
+import { setGlobalSelectedBid } from '@/lib/bid-selection-context';
 
 interface BidListProps {
   bids: Bid[];
@@ -36,6 +37,8 @@ export function BidList({ bids = [], onAlert, onAnalyze }: BidListProps) {
 
   const handleSelectBid = (bid: Bid) => {
     setSelectedBid(bid);
+    // Also set global state for context helper
+    setGlobalSelectedBid(bid);
   };
 
   return (
@@ -48,7 +51,10 @@ export function BidList({ bids = [], onAlert, onAnalyze }: BidListProps) {
             <span className="font-medium text-foreground">Selected:</span>
             <span className="text-muted-foreground truncate">{selectedBid.title}</span>
             <button
-              onClick={() => setSelectedBid(null)}
+              onClick={() => {
+                setSelectedBid(null);
+                setGlobalSelectedBid(null);
+              }}
               className="ml-auto text-xs text-muted-foreground hover:text-foreground"
             >
               Clear
