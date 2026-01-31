@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Government Bid Finder
+
+A conversational AI interface for contractors to find and analyze government bid opportunities. Built at Hack the Stackathon @ YC.
+
+## Features
+
+- **Natural Language Search** - Ask for bids in plain English (e.g., "find plumbing projects for schools")
+- **Real-time Scraping** - Searches SFUSD and CaleProcure portals using Firecrawl
+- **PDF Analysis** - Deep-dive into bid documents with Reducto AI extraction
+- **Email Alerts** - Get notified about opportunities via Resend
+- **Generative UI** - Dynamic components powered by Tambo
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React, Tailwind CSS
+- **AI/ML**: Tambo (generative UI), OpenRouter (LLM)
+- **Data**: Firecrawl (web scraping), Reducto (PDF parsing)
+- **Notifications**: Resend (email)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- API keys for: Tambo, Firecrawl, Reducto, Resend
+
+### Installation
+
+```bash
+npm install
+```
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```env
+NEXT_PUBLIC_TAMBO_API_KEY=your_tambo_key
+FIRECRAWL_API_KEY=your_firecrawl_key
+REDUCTO_API_KEY=your_reducto_key
+RESEND_API_KEY=your_resend_key
+```
+
+### Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Search for bids** - Type queries like "find electrical projects" or "show me school construction bids"
+2. **Select a bid** - Click on any bid card to select it
+3. **Analyze details** - Say "analyze this bid" to get a detailed breakdown from the PDF
+4. **Get alerts** - Enter your email in the BidDetail card to receive notifications
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/
+│   ├── api/bids/       # API routes (search, analyze, alert)
+│   ├── page.tsx        # Main page
+│   └── globals.css     # Styles
+├── components/
+│   ├── BidCard.tsx     # Individual bid display
+│   ├── BidList.tsx     # Bid results with selection
+│   ├── BidDetail.tsx   # Detailed bid analysis + email alerts
+│   ├── TamboWrapper.tsx
+│   └── tambo/          # Tambo UI components
+└── lib/
+    ├── tambo-config.ts # Tambo components & tools
+    ├── firecrawl.ts    # Web scraping
+    ├── reducto.ts      # PDF extraction
+    └── resend.ts       # Email alerts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `POST /api/bids/search` - Search for bids
+- `POST /api/bids/analyze` - Analyze a bid PDF
+- `POST /api/bids/alert` - Send email alert
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
