@@ -20,7 +20,7 @@ interface BidAlertData {
 
 export async function sendBidAlert(email: string, bid: BidAlertData) {
   const { data, error } = await getResend().emails.send({
-    from: 'Bid Alerts <onboarding@resend.dev>',
+    from: 'Bid Alerts <bidalerts@avi.mn>',
     to: [email],
     subject: `New Bid Match: ${bid.title}`,
     html: `

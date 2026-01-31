@@ -161,45 +161,46 @@ export function BidDetail({
           </h3>
         </div>
 
-        {alertSent ? (
-          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <div>
-              <p className="text-sm font-medium text-green-700">Alert sent!</p>
-              <p className="text-xs text-green-600">We&apos;ll notify you at {email}</p>
+        <div className="space-y-3">
+          {alertSent && (
+            <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg mb-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="text-sm font-medium text-green-700">Alert sent to {email}!</p>
+              </div>
             </div>
+          )}
+          <p className="text-sm text-muted-foreground">
+            {alertSent ? 'Send to another email:' : 'Enter your email to receive updates about this bid opportunity.'}
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (alertSent) setAlertSent(false);
+              }}
+              placeholder="your@email.com"
+              className="flex-1 px-3 py-2 text-sm bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
+            />
+            <button
+              onClick={handleSendAlert}
+              disabled={sending || !email}
+              className="px-4 py-2 bg-accent text-accent-foreground text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {sending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              {sending ? 'Sending...' : 'Send Alert'}
+            </button>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Enter your email to receive updates about this bid opportunity.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="flex-1 px-3 py-2 text-sm bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
-              />
-              <button
-                onClick={handleSendAlert}
-                disabled={sending || !email}
-                className="px-4 py-2 bg-accent text-accent-foreground text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {sending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-                {sending ? 'Sending...' : 'Send Alert'}
-              </button>
-            </div>
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
-          </div>
-        )}
+          {error && (
+            <p className="text-xs text-red-500">{error}</p>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
