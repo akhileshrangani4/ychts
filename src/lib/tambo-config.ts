@@ -38,7 +38,7 @@ export const tamboComponents = [
   },
   {
     name: 'BidDetail',
-    description: 'Display detailed analysis of a bid document, including scope, requirements, trades, qualifications, and timeline. Includes email alert signup. Use this after analyzing a bid PDF.',
+    description: 'Display detailed analysis of a bid document, including scope, requirements, trades, qualifications, and timeline. Includes email alert signup and a dropdown to select other bids. Use this after analyzing a bid PDF. Always pass allBids so user can select another bid.',
     component: BidDetail,
     propsSchema: z.object({
       title: z.string().optional().describe('Title of the bid'),
@@ -51,6 +51,7 @@ export const tamboComponents = [
       pdf_url: z.string().optional().describe('URL to the original PDF'),
       due_date: z.string().optional().describe('Due date for the bid'),
       estimated_budget: z.string().optional().describe('Estimated budget'),
+      allBids: z.array(bidSchema).optional().default([]).describe('All available bids so user can select another'),
     }),
   },
 ];
@@ -77,13 +78,14 @@ export const tamboTools = [
   },
   {
     name: 'analyzeBidPDF',
-    description: 'Get detailed information from a bid PDF document using Reducto AI. Use this when the user wants more details about a specific bid, says "analyze this bid", "tell me more", or has selected a bid. Check the selectedBid component state to get the pdf_url of the bid the user selected. After getting results, display them using the BidDetail component.',
-    tool: async ({ pdfUrl, title, agency, due_date, estimated_budget }: {
+    description: 'Get detailed information from a bid PDF document using Reducto AI. Use this when the user wants more details about a specific bid, says "analyze this bid", "tell me more", or has selected a bid. Check the selectedBid or newSelectedBid component state to get the pdf_url. After getting results, display them using the BidDetail component with allBids so user can select another.',
+    tool: async ({ pdfUrl, title, agency, due_date, estimated_budget, allBids }: {
       pdfUrl: string;
       title?: string;
       agency?: string;
       due_date?: string;
       estimated_budget?: string;
+      allBids?: Array<Record<string, unknown>>;
     }) => {
       const response = await fetch('/api/bids/analyze', {
         method: 'POST',
@@ -91,15 +93,16 @@ export const tamboTools = [
         body: JSON.stringify({ pdfUrl }),
       });
       const result = await response.json();
-      // Include bid info for display and email alerts
-      return { ...result, title, agency, pdf_url: pdfUrl, due_date, estimated_budget };
+      // Include bid info for display, email alerts, and bid selector
+      return { ...result, title, agency, pdf_url: pdfUrl, due_date, estimated_budget, allBids };
     },
     inputSchema: z.object({
-      pdfUrl: z.string().url().describe('URL of the bid PDF to analyze. Get this from the selectedBid component state.'),
+      pdfUrl: z.string().url().describe('URL of the bid PDF to analyze. Get this from selectedBid or newSelectedBid component state.'),
       title: z.string().optional().describe('Title of the bid being analyzed'),
       agency: z.string().optional().describe('Agency name of the bid'),
       due_date: z.string().optional().describe('Due date of the bid'),
       estimated_budget: z.string().optional().describe('Estimated budget of the bid'),
+      allBids: z.array(bidSchema).optional().describe('All available bids from the previous search results'),
     }),
     outputSchema: z.object({
       title: z.string().optional(),
@@ -112,6 +115,7 @@ export const tamboTools = [
       trades_required: z.array(z.string()).optional(),
       qualifications: z.array(z.string()).optional(),
       timeline: z.string().optional(),
+      allBids: z.array(bidSchema).optional(),
     }),
   },
   {
