@@ -1,7 +1,7 @@
 'use client';
 
 import { Bid } from '@/types/bid';
-import { Calendar, DollarSign, MapPin, Hash, FileText, Bell, ExternalLink, Check } from 'lucide-react';
+import { Calendar, DollarSign, MapPin, Hash, FileText, Bell, ExternalLink, Check, Clock, AlertTriangle } from 'lucide-react';
 
 interface BidCardProps {
   bid: Bid;
@@ -51,27 +51,43 @@ export function BidCard({ bid, isSelected, onSelect, onAlert, onAnalyze }: BidCa
         </div>
       </div>
 
+      {/* Scope Summary */}
+      {bid.scope_summary && (
+        <div className="px-4 pt-3">
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {bid.scope_summary}
+          </p>
+        </div>
+      )}
+
       {/* Data Grid */}
       <div className="p-4 grid grid-cols-2 gap-3 text-sm">
         {bid.due_date && (
           <DataField icon={Calendar} label="Due" value={bid.due_date} highlight />
         )}
-        {bid.estimated_budget && (
-          <DataField icon={DollarSign} label="Budget" value={bid.estimated_budget} />
+        {(bid.estimated_budget || bid.pay?.estimated_budget) && (
+          <DataField icon={DollarSign} label="Budget" value={bid.pay?.estimated_budget || bid.estimated_budget || ''} />
         )}
         {bid.location && (
           <DataField icon={MapPin} label="Location" value={bid.location} />
         )}
-        {bid.bid_number && (
-          <DataField icon={Hash} label="Bid #" value={bid.bid_number} />
+        {bid.contract_length?.duration && (
+          <DataField icon={Clock} label="Duration" value={bid.contract_length.duration} />
+        )}
+        {bid.hard_requirements && bid.hard_requirements.length > 0 && (
+          <DataField
+            icon={AlertTriangle}
+            label="Requirements"
+            value={`${bid.hard_requirements.length} mandatory`}
+          />
         )}
       </div>
 
       {/* Trades Tags */}
-      {bid.trades && bid.trades.length > 0 && (
+      {((bid.trades && bid.trades.length > 0) || (bid.trades_required && bid.trades_required.length > 0)) && (
         <div className="px-4 pb-3">
           <div className="flex flex-wrap gap-1.5">
-            {bid.trades.map((trade, i) => (
+            {(bid.trades || bid.trades_required || []).map((trade, i) => (
               <span
                 key={i}
                 className="px-2 py-0.5 bg-accent/20 text-accent text-xs font-mono rounded border border-accent/30"

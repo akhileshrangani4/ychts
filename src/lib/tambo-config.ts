@@ -6,17 +6,42 @@ import { BidList } from '@/components/BidList';
 import { BidDetail } from '@/components/BidDetail';
 
 // Component schemas for Tambo
-// Shared bid schema - all fields optional strings
+// Shared bid schema - all fields optional, accepts nulls via nullish()
 const bidSchema = z.object({
-  title: z.string().optional().default(''),
-  bid_number: z.string().optional().default(''),
-  agency: z.string().optional().default(''),
-  due_date: z.string().optional().default(''),
-  estimated_budget: z.string().optional().default(''),
-  trades: z.array(z.string()).optional().default([]),
-  location: z.string().optional().default(''),
-  pdf_url: z.string().optional().default(''),
-  source_url: z.string().optional().default(''),
+  title: z.string().nullish().default(''),
+  bid_number: z.string().nullish(),
+  agency: z.string().nullish(),
+  due_date: z.string().nullish(),
+  estimated_budget: z.string().nullish(),
+  trades: z.array(z.string()).nullish().default([]),
+  location: z.string().nullish(),
+  pdf_url: z.string().nullish(),
+  source_url: z.string().nullish(),
+  // Detailed extraction fields for enhanced display
+  scope_summary: z.string().nullish(),
+  bid_ask: z.object({
+    summary: z.string().nullish(),
+    deliverables: z.array(z.string()).nullish(),
+  }).nullish(),
+  pay: z.object({
+    estimated_budget: z.string().nullish(),
+    payment_terms: z.string().nullish(),
+    retainage: z.string().nullish(),
+  }).nullish(),
+  contract_length: z.object({
+    duration: z.string().nullish(),
+    start_date: z.string().nullish(),
+    end_date: z.string().nullish(),
+    milestones: z.array(z.string()).nullish(),
+  }).nullish(),
+  hard_requirements: z.array(z.string()).nullish(),
+  soft_requirements: z.array(z.string()).nullish(),
+  termination_clauses: z.object({
+    for_cause: z.string().nullish(),
+    for_convenience: z.string().nullish(),
+    notice_period: z.string().nullish(),
+  }).nullish(),
+  trades_required: z.array(z.string()).nullish(),
 });
 
 export const tamboComponents = [
@@ -38,19 +63,38 @@ export const tamboComponents = [
   },
   {
     name: 'BidDetail',
-    description: 'Display detailed analysis of a bid document, including scope, requirements, trades, qualifications, and timeline. Includes email alert signup. Use this after analyzing a bid PDF.',
+    description: 'Display detailed analysis of a bid document. Shows bid ask, pay, contract length, hard/soft requirements, termination clauses, and trades. Includes email alert signup. Use this after analyzing a bid PDF.',
     component: BidDetail,
     propsSchema: z.object({
-      title: z.string().optional().describe('Title of the bid'),
-      agency: z.string().optional().describe('Agency name'),
-      scope_summary: z.string().optional().describe('Summary of the project scope'),
-      requirements: z.array(z.string()).optional().default([]).describe('List of requirements'),
-      trades_required: z.array(z.string()).optional().default([]).describe('Required trades'),
-      qualifications: z.array(z.string()).optional().default([]).describe('Required qualifications'),
-      timeline: z.string().optional().describe('Project timeline'),
-      pdf_url: z.string().optional().describe('URL to the original PDF'),
-      due_date: z.string().optional().describe('Due date for the bid'),
-      estimated_budget: z.string().optional().describe('Estimated budget'),
+      title: z.string().nullish().describe('Title of the bid'),
+      agency: z.string().nullish().describe('Agency name'),
+      scope_summary: z.string().nullish().describe('Summary of the project scope'),
+      bid_ask: z.object({
+        summary: z.string().nullish(),
+        deliverables: z.array(z.string()).nullish(),
+      }).nullish().describe('What the bid is asking for'),
+      pay: z.object({
+        estimated_budget: z.string().nullish(),
+        payment_terms: z.string().nullish(),
+        retainage: z.string().nullish(),
+      }).nullish().describe('Payment terms and budget'),
+      contract_length: z.object({
+        duration: z.string().nullish(),
+        start_date: z.string().nullish(),
+        end_date: z.string().nullish(),
+        milestones: z.array(z.string()).nullish(),
+      }).nullish().describe('Contract duration and timeline'),
+      hard_requirements: z.array(z.string()).nullish().describe('Mandatory requirements'),
+      soft_requirements: z.array(z.string()).nullish().describe('Preferred requirements'),
+      termination_clauses: z.object({
+        for_cause: z.string().nullish(),
+        for_convenience: z.string().nullish(),
+        notice_period: z.string().nullish(),
+      }).nullish().describe('Termination terms'),
+      trades_required: z.array(z.string()).nullish().describe('Required trades'),
+      pdf_url: z.string().nullish().describe('URL to the original PDF'),
+      due_date: z.string().nullish().describe('Due date for the bid'),
+      estimated_budget: z.string().nullish().describe('Estimated budget'),
     }),
   },
 ];
@@ -102,16 +146,35 @@ export const tamboTools = [
       estimated_budget: z.string().optional().describe('Estimated budget of the bid'),
     }),
     outputSchema: z.object({
-      title: z.string().optional(),
-      agency: z.string().optional(),
-      pdf_url: z.string().optional(),
-      due_date: z.string().optional(),
-      estimated_budget: z.string().optional(),
-      scope_summary: z.string().optional(),
-      requirements: z.array(z.string()).optional(),
-      trades_required: z.array(z.string()).optional(),
-      qualifications: z.array(z.string()).optional(),
-      timeline: z.string().optional(),
+      title: z.string().nullish(),
+      agency: z.string().nullish(),
+      pdf_url: z.string().nullish(),
+      due_date: z.string().nullish(),
+      estimated_budget: z.string().nullish(),
+      scope_summary: z.string().nullish(),
+      bid_ask: z.object({
+        summary: z.string().nullish(),
+        deliverables: z.array(z.string()).nullish(),
+      }).nullish(),
+      pay: z.object({
+        estimated_budget: z.string().nullish(),
+        payment_terms: z.string().nullish(),
+        retainage: z.string().nullish(),
+      }).nullish(),
+      contract_length: z.object({
+        duration: z.string().nullish(),
+        start_date: z.string().nullish(),
+        end_date: z.string().nullish(),
+        milestones: z.array(z.string()).nullish(),
+      }).nullish(),
+      hard_requirements: z.array(z.string()).nullish(),
+      soft_requirements: z.array(z.string()).nullish(),
+      termination_clauses: z.object({
+        for_cause: z.string().nullish(),
+        for_convenience: z.string().nullish(),
+        notice_period: z.string().nullish(),
+      }).nullish(),
+      trades_required: z.array(z.string()).nullish(),
     }),
   },
   {

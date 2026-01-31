@@ -192,21 +192,21 @@ export const MessageThreadPanel = React.forwardRef<
   const defaultSuggestions: Suggestion[] = [
     {
       id: "suggestion-1",
-      title: "Get started",
-      detailedSuggestion: "What can you help me with?",
-      messageId: "welcome-query",
+      title: "Find plumbing bids",
+      detailedSuggestion: "Find plumbing projects for schools in San Francisco",
+      messageId: "plumbing-query",
     },
     {
       id: "suggestion-2",
-      title: "Learn more",
-      detailedSuggestion: "Tell me about your capabilities.",
-      messageId: "capabilities-query",
+      title: "Electrical contracts",
+      detailedSuggestion: "Show me electrical contractor opportunities",
+      messageId: "electrical-query",
     },
     {
       id: "suggestion-3",
-      title: "Examples",
-      detailedSuggestion: "Show me some example queries I can try.",
-      messageId: "examples-query",
+      title: "HVAC projects",
+      detailedSuggestion: "Find HVAC maintenance and installation bids",
+      messageId: "hvac-query",
     },
   ];
 

@@ -2,16 +2,43 @@
 
 import { useState } from 'react';
 import { useTamboComponentState } from '@tambo-ai/react';
-import { FileText, Clock, CheckCircle2, Wrench, Award, ClipboardList, Mail, Send, Loader2 } from 'lucide-react';
+import { FileText, Clock, CheckCircle2, Wrench, ClipboardList, Mail, Send, Loader2, DollarSign, AlertTriangle, XCircle, Target, Calendar } from 'lucide-react';
+
+interface BidAsk {
+  summary?: string;
+  deliverables?: string[];
+}
+
+interface Pay {
+  estimated_budget?: string;
+  payment_terms?: string;
+  retainage?: string;
+}
+
+interface ContractLength {
+  duration?: string;
+  start_date?: string;
+  end_date?: string;
+  milestones?: string[];
+}
+
+interface TerminationClauses {
+  for_cause?: string;
+  for_convenience?: string;
+  notice_period?: string;
+}
 
 interface BidDetailProps {
   title?: string;
   agency?: string;
   scope_summary?: string;
-  requirements?: string[];
+  bid_ask?: BidAsk;
+  pay?: Pay;
+  contract_length?: ContractLength;
+  hard_requirements?: string[];
+  soft_requirements?: string[];
+  termination_clauses?: TerminationClauses;
   trades_required?: string[];
-  qualifications?: string[];
-  timeline?: string;
   pdf_url?: string;
   due_date?: string;
   estimated_budget?: string;
@@ -21,10 +48,13 @@ export function BidDetail({
   title,
   agency,
   scope_summary,
-  requirements = [],
+  bid_ask,
+  pay,
+  contract_length,
+  hard_requirements = [],
+  soft_requirements = [],
+  termination_clauses,
   trades_required = [],
-  qualifications = [],
-  timeline,
   pdf_url,
   due_date,
   estimated_budget,
@@ -52,8 +82,8 @@ export function BidDetail({
           email,
           bidTitle: title || 'Government Bid',
           agency: agency || 'Unknown Agency',
-          dueDate: due_date || timeline || 'Not specified',
-          budget: estimated_budget || 'Not specified',
+          dueDate: due_date || contract_length?.end_date || 'Not specified',
+          budget: pay?.estimated_budget || estimated_budget || 'Not specified',
           url: pdf_url || '',
         }),
       });
@@ -101,10 +131,114 @@ export function BidDetail({
           </Section>
         )}
 
-        {/* Timeline */}
-        {timeline && (
-          <Section icon={Clock} title="Timeline">
-            <p className="text-sm text-foreground">{timeline}</p>
+        {/* Bid Ask */}
+        {bid_ask && (bid_ask.summary || (bid_ask.deliverables && bid_ask.deliverables.length > 0)) && (
+          <Section icon={Target} title="What They're Asking For">
+            {bid_ask.summary && (
+              <p className="text-sm text-foreground leading-relaxed mb-3">{bid_ask.summary}</p>
+            )}
+            {bid_ask.deliverables && bid_ask.deliverables.length > 0 && (
+              <ul className="space-y-2">
+                {bid_ask.deliverables.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Section>
+        )}
+
+        {/* Pay */}
+        {pay && (pay.estimated_budget || pay.payment_terms || pay.retainage) && (
+          <Section icon={DollarSign} title="Payment & Budget">
+            <div className="space-y-2 text-sm">
+              {(pay.estimated_budget || estimated_budget) && (
+                <div><span className="font-medium">Budget:</span> {pay.estimated_budget || estimated_budget}</div>
+              )}
+              {pay.payment_terms && (
+                <div><span className="font-medium">Payment Terms:</span> {pay.payment_terms}</div>
+              )}
+              {pay.retainage && (
+                <div><span className="font-medium">Retainage:</span> {pay.retainage}</div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* Contract Length */}
+        {contract_length && (contract_length.duration || contract_length.start_date || contract_length.end_date || (contract_length.milestones && contract_length.milestones.length > 0)) && (
+          <Section icon={Calendar} title="Contract Timeline">
+            <div className="space-y-2 text-sm">
+              {contract_length.duration && (
+                <div><span className="font-medium">Duration:</span> {contract_length.duration}</div>
+              )}
+              {contract_length.start_date && (
+                <div><span className="font-medium">Start:</span> {contract_length.start_date}</div>
+              )}
+              {contract_length.end_date && (
+                <div><span className="font-medium">End:</span> {contract_length.end_date}</div>
+              )}
+              {contract_length.milestones && contract_length.milestones.length > 0 && (
+                <div className="mt-2">
+                  <span className="font-medium">Milestones:</span>
+                  <ul className="mt-1 space-y-1">
+                    {contract_length.milestones.map((m, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Section>
+        )}
+
+        {/* Hard Requirements */}
+        {hard_requirements.length > 0 && (
+          <Section icon={AlertTriangle} title="Hard Requirements (Mandatory)">
+            <ul className="space-y-2">
+              {hard_requirements.map((req, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                  <span>{req}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {/* Soft Requirements */}
+        {soft_requirements.length > 0 && (
+          <Section icon={CheckCircle2} title="Soft Requirements (Preferred)">
+            <ul className="space-y-2">
+              {soft_requirements.map((req, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                  <span className="w-1.5 h-1.5 bg-accent rounded-full mt-2 flex-shrink-0" />
+                  <span>{req}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {/* Termination Clauses */}
+        {termination_clauses && (termination_clauses.for_cause || termination_clauses.for_convenience || termination_clauses.notice_period) && (
+          <Section icon={XCircle} title="Termination Clauses">
+            <div className="space-y-2 text-sm">
+              {termination_clauses.for_cause && (
+                <div><span className="font-medium">For Cause:</span> {termination_clauses.for_cause}</div>
+              )}
+              {termination_clauses.for_convenience && (
+                <div><span className="font-medium">For Convenience:</span> {termination_clauses.for_convenience}</div>
+              )}
+              {termination_clauses.notice_period && (
+                <div><span className="font-medium">Notice Period:</span> {termination_clauses.notice_period}</div>
+              )}
+            </div>
           </Section>
         )}
 
@@ -121,34 +255,6 @@ export function BidDetail({
                 </span>
               ))}
             </div>
-          </Section>
-        )}
-
-        {/* Requirements */}
-        {requirements.length > 0 && (
-          <Section icon={CheckCircle2} title="Requirements">
-            <ul className="space-y-2">
-              {requirements.map((req, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                  <span>{req}</span>
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        {/* Qualifications */}
-        {qualifications.length > 0 && (
-          <Section icon={Award} title="Required Qualifications">
-            <ul className="space-y-2">
-              {qualifications.map((qual, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full mt-2 flex-shrink-0" />
-                  <span>{qual}</span>
-                </li>
-              ))}
-            </ul>
           </Section>
         )}
       </div>
