@@ -192,21 +192,21 @@ export const MessageThreadPanel = React.forwardRef<
   const defaultSuggestions: Suggestion[] = [
     {
       id: "suggestion-1",
-      title: "Find plumbing bids",
-      detailedSuggestion: "Find plumbing projects for schools in San Francisco",
-      messageId: "plumbing-query",
+      title: "Find SF school bids",
+      detailedSuggestion: "Search for construction and renovation bids from San Francisco schools",
+      messageId: "sf-schools-query",
     },
     {
       id: "suggestion-2",
-      title: "Electrical contracts",
-      detailedSuggestion: "Show me electrical contractor opportunities",
-      messageId: "electrical-query",
+      title: "Plumbing contracts",
+      detailedSuggestion: "Find plumbing projects available for contractors in the Bay Area",
+      messageId: "plumbing-query",
     },
     {
       id: "suggestion-3",
-      title: "HVAC projects",
-      detailedSuggestion: "Find HVAC maintenance and installation bids",
-      messageId: "hvac-query",
+      title: "State procurement",
+      detailedSuggestion: "Search CaleProcure for California state government bid opportunities",
+      messageId: "state-query",
     },
   ];
 

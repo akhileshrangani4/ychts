@@ -14,6 +14,9 @@ function sanitizeBid(bid: any) {
     location: bid.location || '',
     pdf_url: bid.pdf_url || '',
     source_url: bid.source_url || '',
+    // Include coordinates for map display
+    latitude: bid.latitude || 37.7749,
+    longitude: bid.longitude || -122.4194,
   };
 }
 

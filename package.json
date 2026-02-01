@@ -41,6 +41,7 @@
     "highlight.js": "^11.11.1",
     "json-stringify-pretty-compact": "^4.0.0",
     "lucide-react": "^0.563.0",
+    "maplibre-gl": "^5.17.0",
     "nanoid": "^5.1.6",
     "next": "16.1.6",
     "radix-ui": "^1.4.3",
