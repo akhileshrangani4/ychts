@@ -199,7 +199,7 @@ const ThreadHistoryHeader = React.forwardRef<
             : "opacity-100 max-w-none transition-all duration-300 delay-75",
         )}
       >
-        Tambo Conversations
+        Conversations
       </h2>
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
