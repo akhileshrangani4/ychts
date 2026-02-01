@@ -22,28 +22,3 @@ export default function Home() {
   );
 }
 
-function StatusBadge({ name, status }: { name: string; status: 'active' | 'inactive' }) {
-  return (
-    <div className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-background/50">
-      <span
-        className={`w-1.5 h-1.5 rounded-full ${
-          status === 'active' ? 'bg-green-500 status-live' : 'bg-muted-foreground'
-        }`}
-      />
-      <span className="font-mono text-xs text-foreground/80">{name}</span>
-    </div>
-  );
-}
-
-function PoweredByLink({ href, name }: { href: string; name: string }) {
-  return (
-    <a
-      href={href}
-      className="text-muted-foreground hover:text-primary transition-colors"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {name}
-    </a>
-  );
-}
