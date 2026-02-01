@@ -173,10 +173,10 @@ export function CanvasSpace({ className }: CanvasSpaceProps) {
             <div className="flex-1 flex items-center justify-center text-center p-6">
               <div className="space-y-2">
                 <p className="text-muted-foreground font-medium">
-                  Canvas is empty
+                  No bids yet
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Interactive components will appear here as they are generated
+                  Search the map or ask to find government bid opportunities
                 </p>
               </div>
             </div>
