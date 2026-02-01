@@ -2,12 +2,13 @@
 
 import { Bid } from '@/types/bid';
 import { BidCard } from './BidCard';
-import { SearchX, Briefcase, CheckCircle2 } from 'lucide-react';
+import { SearchX, Briefcase, CheckCircle2, Trophy } from 'lucide-react';
 import { useTamboComponentState } from '@tambo-ai/react';
 import { setGlobalSelectedBid } from '@/lib/bid-selection-context';
+import { ScoredBid } from '@/lib/bid-scoring';
 
 interface BidListProps {
-  bids: Bid[];
+  bids: (Bid | ScoredBid)[];
   onAlert?: (bid: Bid) => void;
   onAnalyze?: (pdfUrl: string) => void;
 }
@@ -18,6 +19,9 @@ export function BidList({ bids = [], onAlert, onAnalyze }: BidListProps) {
 
   // Defensive check - ensure bids is always an array
   const safeBids = Array.isArray(bids) ? bids : [];
+  
+  // Check if bids have scores
+  const hasScores = safeBids.length > 0 && typeof (safeBids[0] as ScoredBid).score === 'number';
 
   if (safeBids.length === 0) {
     return (
@@ -72,7 +76,20 @@ export function BidList({ bids = [], onAlert, onAnalyze }: BidListProps) {
         <span className="text-sm font-mono text-muted-foreground">
           <span className="text-primary font-semibold">{safeBids.length}</span> opportunities found
         </span>
+        {hasScores && (
+          <span className="ml-auto text-xs text-muted-foreground">Sorted by match score</span>
+        )}
       </div>
+
+      {/* Best Match Banner */}
+      {hasScores && safeBids.length > 0 && (
+        <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+          <Trophy className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-medium text-green-700">Best Match:</span>
+          <span className="text-sm text-foreground truncate">{safeBids[0].title}</span>
+          <span className="ml-auto text-sm font-bold text-green-600">{(safeBids[0] as ScoredBid).score}%</span>
+        </div>
+      )}
 
       {/* Bid Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 stagger-children">
@@ -80,6 +97,7 @@ export function BidList({ bids = [], onAlert, onAnalyze }: BidListProps) {
           <BidCard
             key={`${bid.bid_number || 'bid'}-${index}`}
             bid={bid}
+            score={(bid as ScoredBid).score}
             isSelected={selectedBid?.bid_number === bid.bid_number && selectedBid?.title === bid.title}
             onSelect={handleSelectBid}
             onAlert={onAlert}

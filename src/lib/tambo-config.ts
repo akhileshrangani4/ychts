@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { BidCard } from '@/components/BidCard';
 import { BidList } from '@/components/BidList';
 import { BidDetail } from '@/components/BidDetail';
+import { scoreAndSortBids } from '@/lib/bid-scoring';
+import { DEFAULT_USER_PROFILE } from '@/lib/user-profile';
 // Note: BidMap is pre-placed in the UI as an interactable component, not generated
 
 // Component schemas for Tambo
@@ -46,6 +48,8 @@ const bidSchema = z.object({
     notice_period: z.string().nullish(),
   }).nullish(),
   trades_required: z.array(z.string()).nullish(),
+  // Scoring field
+  score: z.number().nullish(),
 });
 
 export const tamboComponents = [
@@ -109,20 +113,24 @@ export const tamboComponents = [
 export const tamboTools = [
   {
     name: 'findBids',
-    description: `Search for government bids using Firecrawl to scrape SFUSD and CaleProcure.
+    description: `Search for government bids using Firecrawl to scrape SFUSD and CaleProcure. Results are scored and sorted by match percentage.
 
 IMPORTANT: After calling this tool:
 1. Display results using BidList component
-2. Update the BidMap interactable component by setting its "bids" prop to the array returned by this tool (data.bids). Each bid has latitude and longitude fields for map markers.
-
-Example: Set BidMap's bids prop to data.bids from this tool's response.`,
+2. Update the BidMap interactable component by setting its "bids" prop to the array returned by this tool (data.bids). Each bid has latitude and longitude fields for map markers.`,
     tool: async ({ query }: { query: string }) => {
       const response = await fetch('/api/bids/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       });
-      return response.json();
+      const result = await response.json();
+      
+      // Score and sort bids using user profile
+      const bids = result.data?.bids || result.bids || [];
+      const scoredBids = scoreAndSortBids(bids, DEFAULT_USER_PROFILE, query);
+      
+      return { bids: scoredBids };
     },
     inputSchema: z.object({
       query: z.string().describe('Natural language description of what bids to find (e.g., "plumbing projects for schools in SF")'),
