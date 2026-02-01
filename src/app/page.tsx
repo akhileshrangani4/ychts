@@ -10,16 +10,6 @@ export default function Home() {
             <h1 className="text-xl font-bold text-foreground tracking-tight">
               Government Bid<span className="text-primary"> Finder</span>
             </h1>
-            <div className="hidden sm:flex items-center gap-3">
-              <StatusBadge name="SFUSD" status="active" />
-              <StatusBadge name="CaleProcure" status="active" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-            <span className="hidden md:inline">Powered by</span>
-            <PoweredByLink href="https://firecrawl.dev" name="Firecrawl" />
-            <span className="text-border">•</span>
-            <PoweredByLink href="https://tambo.co" name="Tambo" />
           </div>
         </div>
       </header>
