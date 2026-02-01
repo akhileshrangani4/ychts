@@ -6,6 +6,7 @@ import { BidList } from '@/components/BidList';
 import { BidDetail } from '@/components/BidDetail';
 import { scoreAndSortBids } from '@/lib/bid-scoring';
 import { DEFAULT_USER_PROFILE } from '@/lib/user-profile';
+// Note: BidMap is pre-placed in the UI as an interactable component, not generated
 
 // Component schemas for Tambo
 // Shared bid schema - all fields optional, accepts nulls via nullish()
@@ -19,6 +20,9 @@ const bidSchema = z.object({
   location: z.string().nullish(),
   pdf_url: z.string().nullish(),
   source_url: z.string().nullish(),
+  // Coordinates for map display
+  latitude: z.number().nullish(),
+  longitude: z.number().nullish(),
   // Detailed extraction fields for enhanced display
   scope_summary: z.string().nullish(),
   bid_ask: z.object({
@@ -101,13 +105,19 @@ export const tamboComponents = [
       estimated_budget: z.string().nullish().describe('Estimated budget'),
     }),
   },
+  // BidMap is pre-placed in the UI as an interactable component (id: "main-bid-map")
+  // Tambo can update it via: updateInteractableComponentProps("main-bid-map", { bids: [...], initialCenter: [...], initialZoom: N })
 ];
 
 // Tool schemas for Tambo
 export const tamboTools = [
   {
     name: 'findBids',
-    description: 'Search for government bids matching user criteria. Use this when the user wants to find government contracts, bids, or procurement opportunities. Results are scored and sorted by match percentage.',
+    description: `Search for government bids using Firecrawl to scrape SFUSD and CaleProcure. Results are scored and sorted by match percentage.
+
+IMPORTANT: After calling this tool:
+1. Display results using BidList component
+2. Update the BidMap interactable component by setting its "bids" prop to the array returned by this tool (data.bids). Each bid has latitude and longitude fields for map markers.`,
     tool: async ({ query }: { query: string }) => {
       const response = await fetch('/api/bids/search', {
         method: 'POST',
@@ -126,7 +136,9 @@ export const tamboTools = [
       query: z.string().describe('Natural language description of what bids to find (e.g., "plumbing projects for schools in SF")'),
     }),
     outputSchema: z.object({
-      bids: z.array(bidSchema).default([]),
+      data: z.object({
+        bids: z.array(bidSchema).default([]),
+      }),
     }),
   },
   {

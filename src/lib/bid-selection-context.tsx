@@ -49,3 +49,36 @@ export function setGlobalSelectedBid(bid: Bid | null) {
 export function getGlobalSelectedBid() {
   return globalSelectedBid;
 }
+
+// Map search state
+interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+  centerLat: number;
+  centerLng: number;
+  areaName: string;
+}
+
+interface MapSearchState {
+  bounds: MapBounds | null;
+  searchTriggered: boolean;
+}
+
+let globalMapSearch: MapSearchState = {
+  bounds: null,
+  searchTriggered: false,
+};
+
+export function setGlobalMapSearch(bounds: MapBounds | null, triggered: boolean) {
+  globalMapSearch = { bounds, searchTriggered: triggered };
+}
+
+export function getGlobalMapSearch() {
+  return globalMapSearch;
+}
+
+export function clearMapSearchTrigger() {
+  globalMapSearch.searchTriggered = false;
+}

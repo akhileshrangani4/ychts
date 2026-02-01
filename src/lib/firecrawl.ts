@@ -10,6 +10,44 @@ function getFirecrawl() {
   return firecrawl;
 }
 
+// Approximate coordinates for common California locations
+const locationCoordinates: Record<string, { lat: number; lng: number }> = {
+  'san francisco': { lat: 37.7749, lng: -122.4194 },
+  'sf': { lat: 37.7749, lng: -122.4194 },
+  'oakland': { lat: 37.8044, lng: -122.2712 },
+  'berkeley': { lat: 37.8716, lng: -122.2727 },
+  'sacramento': { lat: 38.5816, lng: -121.4944 },
+  'los angeles': { lat: 34.0522, lng: -118.2437 },
+  'la': { lat: 34.0522, lng: -118.2437 },
+  'san diego': { lat: 32.7157, lng: -117.1611 },
+  'san jose': { lat: 37.3382, lng: -121.8863 },
+  'fresno': { lat: 36.7378, lng: -119.7871 },
+  'long beach': { lat: 33.7701, lng: -118.1937 },
+  'california': { lat: 36.7783, lng: -119.4179 },
+};
+
+// Get coordinates for a location string with small random offset for visual spread
+function getCoordinatesForLocation(location: string, agency: string): { latitude: number; longitude: number } {
+  const searchText = `${location} ${agency}`.toLowerCase();
+
+  // Find matching location
+  for (const [key, coords] of Object.entries(locationCoordinates)) {
+    if (searchText.includes(key)) {
+      // Add small random offset (±0.015) to spread markers visually
+      return {
+        latitude: coords.lat + (Math.random() - 0.5) * 0.03,
+        longitude: coords.lng + (Math.random() - 0.5) * 0.03,
+      };
+    }
+  }
+
+  // Default to San Francisco with offset if no match
+  return {
+    latitude: 37.7749 + (Math.random() - 0.5) * 0.03,
+    longitude: -122.4194 + (Math.random() - 0.5) * 0.03,
+  };
+}
+
 // Parse bids from markdown content
 function parseBidsFromMarkdown(markdown: string, sourceUrl: string, agency: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,7 +119,7 @@ function parseBidsFromMarkdown(markdown: string, sourceUrl: string, agency: stri
     bids.push(currentBid);
   }
 
-  // Clean up bids - ensure all fields are strings (not null)
+  // Clean up bids - ensure all fields are strings (not null) and add coordinates
   for (const bid of bids) {
     bid.title = bid.title || 'Untitled Bid';
     bid.bid_number = bid.bid_number || '';
@@ -92,6 +130,11 @@ function parseBidsFromMarkdown(markdown: string, sourceUrl: string, agency: stri
     bid.source_url = bid.source_url || '';
     bid.pdf_url = bid.pdf_url || '';
     bid.trades = bid.trades ? [...new Set(bid.trades as string[])] : [];
+
+    // Add coordinates for map display
+    const coords = getCoordinatesForLocation(bid.location, bid.agency);
+    bid.latitude = coords.latitude;
+    bid.longitude = coords.longitude;
   }
 
   return bids;
@@ -139,3 +182,4 @@ export async function findBids(userQuery: string) {
 
   return { data: { bids: filteredBids.length > 0 ? filteredBids : allBids } };
 }
+
